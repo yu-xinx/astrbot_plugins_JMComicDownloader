@@ -54,15 +54,16 @@ except Exception:
     pass
 
 # 插件元数据
-__name__ = "JMComicDownloader"
-__version__ = "1.2.0"
+PLUGIN_NAME = "JMComicDownloader"
+PLUGIN_VERSION = "1.2.0"
+PLUGIN_AUTHOR = "yuxin"
+PLUGIN_DESC = "JMComicDownloader 插件集,仅aiocqhttp支持。"
 
 @register(
-    name="JMComicDownloader",
-    author="yuxin",
-    desc="JMComicDownloader 插件集,仅aiocqhttp支持。",
-    version=__version__
-)
+    name=PLUGIN_NAME,
+    author=PLUGIN_AUTHOR,
+    desc=PLUGIN_DESC,
+    version=PLUGIN_VERSION)
 class JMComicDownloader(Star):
     """
     JMComic 漫画下载插件
