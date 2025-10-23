@@ -57,7 +57,7 @@ except Exception:
 __name__ = "JMComicDownloader"
 __version__ = "1.2.0"
 
-@register("yuxin", "JMComicDownloader 插件集,仅aiocqhttp支持。", version=__version__)
+@register("JMComicDownloader", "yuxin", "JMComicDownloader 插件集,仅aiocqhttp支持。", version=__version__)
 class JMComicDownloader(Star):
     """
     JMComic 漫画下载插件
