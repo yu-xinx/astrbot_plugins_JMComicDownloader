@@ -27,7 +27,11 @@ except Exception:
 # 导入 AstrBot 相关的库（仅使用公开 api）
 from astrbot.api.event import filter
 from astrbot.api.star import Context, register, Star
-from astrbot.api.message import File
+try:
+    from astrbot.api.message import File
+except Exception:
+    # fallback for older/newer AstrBot layouts
+    from astrbot.core.message.components import File
 import json
 
 if TYPE_CHECKING:
