@@ -3,25 +3,15 @@ import os
 import asyncio
 from typing import TYPE_CHECKING
 
-# 导入 jmcomic 相关的库
-try:
-    from jmcomic import jm_option, jm_client_new, JmcomicUI
-    from jmcomic.cl_api import (
-        JmOption, JmcomicClient, DownloadResult,
-        LoginResult, SearchResult, JmAlbumDetail
-    )
-except ImportError:
-    print("jmcomic 库未安装，请使用 'pip install jmcomic' 进行安装")
-    jm_option = None
+from jmcomic import JmOption, JmAlbumDetail, JmHtmlClient, JmModuleConfig, JmApiClient, create_option_by_file, \
+    JmSearchPage, JmPhotoDetail, JmImageDetail, JmCategoryPage, JmMagicConstants
 
 # 导入 AstrBot 相关的库
 from astrbot.api.event import filter
-from astrbot.api.star import Context, register
-from astrbot.api.plugin import Plugin
-from astrbot.api.message import Plain, File
+from astrbot.api.star import Context, register, Plugin
 
-if TYPE_CHECKING:
-    from astrbot.api.bot import Bot
+
+
 
 # 插件元数据
 __name__ = "JMComicDownloader"
