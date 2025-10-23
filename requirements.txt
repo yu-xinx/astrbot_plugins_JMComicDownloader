@@ -1,0 +1,2 @@
+astrbot>=1.0.0
+jmcomic>=1.0.0
