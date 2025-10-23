@@ -17,11 +17,11 @@ except ImportError:
 # 导入 AstrBot 相关的库
 from astrbot.api.event import filter
 from astrbot.api.star import Context, register
-from astrbot.core.plugin import Plugin
-from astrbot.core.message.components import Plain, File
+from astrbot.api.plugin import Plugin
+from astrbot.api.message import Plain, File
 
 if TYPE_CHECKING:
-    from astrbot.core.bot import Bot
+    from astrbot.api.bot import Bot
 
 # 插件元数据
 __name__ = "JMComicDownloader"
