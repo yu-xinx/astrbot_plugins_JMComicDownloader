@@ -1,0 +1,28 @@
+{
+  "jm_config_path": {
+    "type": "string",
+    "default": "data/plugin_data/JMComicDownloader/jmcomic.yml",
+    "title": "JMComic 配置文件路径",
+    "description": "用于存储 JMComic 库配置和登录 cookies 的文件路径 (相对于 AstrBot 根目录)。"
+  },
+  "download_dir": {
+    "type": "string",
+    "default": "data/plugin_data/JMComicDownloader/pdf",
+    "title": "漫画下载(PDF)目录",
+    "description": "下载的漫画 PDF 文件将存储在此目录下 (相对于 AstrBot 根目录)。"
+  },
+  "username": {
+    "type": "string",
+    "default": "",
+    "title": "JMComic 用户名",
+    "description": "您的 JMComic 账号用户名 (可选)。"
+  },
+  "password": {
+    "type": "string",
+    "default": "",
+    "format": "password",
+    "title": "JMComic 密码",
+    "description": "您的 JMComic 账号密码 (可选)。"
+  }
+}
+
