@@ -1,31 +1,50 @@
+from __future__ import annotations
+
 import re
 import os
 import asyncio
 from typing import TYPE_CHECKING
 
-from jmcomic import JmOption, JmAlbumDetail, JmHtmlClient, JmModuleConfig, JmApiClient, create_option_by_file, \
-    JmSearchPage, JmPhotoDetail, JmImageDetail, JmCategoryPage, JmMagicConstants
+# jmcomic: use public API recommended usage
+try:
+    from jmcomic import jm_option, jm_client_new, JmcomicUI
+    from jmcomic.cl_api import (
+        JmOption, JmcomicClient, DownloadResult,
+        LoginResult, SearchResult, JmAlbumDetail
+    )
+except Exception:
+    # keep names defined so rest of plugin can detect absence
+    jm_option = None
+    jm_client_new = None
+    JmcomicUI = None
+    JmOption = None
+    JmcomicClient = None
+    DownloadResult = None
+    LoginResult = None
+    SearchResult = None
+    JmAlbumDetail = None
 
-# 导入 AstrBot 相关的库
+# 导入 AstrBot 相关的库（仅使用公开 api）
 from astrbot.api.event import filter
-from astrbot.api.star import Context, register, Plugin
+from astrbot.api.star import Context, register, Star
+from astrbot.api.message import File
+import json
 
-
-
+if TYPE_CHECKING:
+    from astrbot.api.bot import Bot
 
 # 插件元数据
 __name__ = "JMComicDownloader"
 __version__ = "1.2.0"
 
 @register
-class JMComicDownloader(Plugin):
+class JMComicDownloader(Star):
     """
     JMComic 漫画下载插件
     - /jm [ID] : 下载漫画
     - /jm_search [关键词] : 搜索漫画
     - /jm_status : 检查登录状态
     """
-
     def __init__(self, bot: "Bot", config: dict):
         super().__init__(bot, config)
 
@@ -40,7 +59,7 @@ class JMComicDownloader(Plugin):
         self.log.info(f"将使用 jmcomic 配置文件: {os.path.abspath(config_path)}")
         
         # 2. 从该文件加载 JmOption
-        self.option: JmOption = jm_option.JmOption.load(config_path)
+        self.option = JmOption.load(config_path)
 
         # 3. 使用配置覆盖 JmOption
         self.download_dir = self.config.get("download_dir", "data/plugin_data/JMComicDownloader/pdf")
@@ -71,11 +90,11 @@ class JMComicDownloader(Plugin):
 
         # 初始化客户端
         self.ui = JmcomicUI(self.option)
-        self.client: JmcomicClient = jm_client_new(self.option)
+        self.client = jm_client_new(self.option)
         self.log.info("JMComicDownloader 插件已加载，客户端已初始化。")
 
     @filter("/jm {album_id}")
-    async def handle_jm_command(self, ctx: Context):
+    async def handle_jm_command(self, ctx: "Context"):
         """处理 /jm 命令"""
         if jm_option is None:
             await ctx.send("错误：jmcomic 库未正确安装，请联系管理员。")
@@ -90,7 +109,7 @@ class JMComicDownloader(Plugin):
         asyncio.create_task(self.process_download(ctx, album_id))
 
     @filter("/jm_status")
-    async def handle_jm_status(self, ctx: Context):
+    async def handle_jm_status(self, ctx: "Context"):
         """处理 /jm_status 命令"""
         if jm_option is None:
             await ctx.send("错误：jmcomic 库未正确安装。")
@@ -100,7 +119,7 @@ class JMComicDownloader(Plugin):
 
         try:
             loop = asyncio.get_event_loop()
-            login_result: LoginResult = await loop.run_in_executor(
+            login_result = await loop.run_in_executor(
                 None,
                 self.client.check_login
             )
@@ -126,7 +145,7 @@ class JMComicDownloader(Plugin):
             await ctx.send(f"检查登录状态时出错: {e}")
 
     @filter("/jm_search {keyword}")
-    async def handle_jm_search(self, ctx: Context):
+    async def handle_jm_search(self, ctx: "Context"):
         """处理 /jm_search 命令"""
         if jm_option is None:
             await ctx.send("错误：jmcomic 库未正确安装，请联系管理员。")
@@ -141,7 +160,7 @@ class JMComicDownloader(Plugin):
 
         try:
             loop = asyncio.get_event_loop()
-            search_result: SearchResult = await loop.run_in_executor(
+            search_result = await loop.run_in_executor(
                 None,
                 self.client.search_album,
                 keyword
@@ -151,7 +170,7 @@ class JMComicDownloader(Plugin):
                 await ctx.send(f"搜索失败: {search_result.msg}")
                 return
 
-            album_list: list[JmAlbumDetail] = search_result.album_list
+            album_list = search_result.album_list
             if not album_list:
                 await ctx.send(f"未找到与 '{keyword}' 相关的结果。")
                 return
@@ -174,7 +193,7 @@ class JMComicDownloader(Plugin):
             self.log.exception(f"搜索 '{keyword}' 时发生错误: {e}")
             await ctx.send(f"搜索时出错: {e}")
 
-    async def process_download(self, ctx: Context, album_id: str):
+    async def process_download(self, ctx: "Context", album_id: str):
         """处理下载逻辑"""
         try:
             self.log.info(f"正在为 {album_id} 搜索本地缓存...")
@@ -200,7 +219,7 @@ class JMComicDownloader(Plugin):
             await ctx.send(f"开始下载漫画 {album_id}，这可能需要一些时间...")
 
             loop = asyncio.get_event_loop()
-            dl_result: DownloadResult = await loop.run_in_executor(
+            dl_result = await loop.run_in_executor(
                 None,
                 self.client.download_album,
                 album_id
@@ -227,7 +246,7 @@ class JMComicDownloader(Plugin):
             self.log.exception(f"处理 {album_id} 时发生错误: {e}")
             await ctx.send(f"处理时发生错误: {e}")
 
-    async def send_file(self, ctx: Context, file_path: str, album_id: str):
+    async def send_file(self, ctx: "Context", file_path: str, album_id: str):
         """发送文件"""
         try:
             await ctx.send(File(path=file_path))
