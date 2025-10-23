@@ -37,6 +37,22 @@ import json
 if TYPE_CHECKING:
     from astrbot.api.bot import Bot
 
+# compatibility: in some AstrBot versions `filter` is a module, not a callable
+try:
+    if not callable(filter):
+        # try common attribute names
+        if hasattr(filter, 'filter') and callable(filter.filter):
+            filter = filter.filter
+        elif hasattr(filter, 'on') and callable(filter.on):
+            filter = filter.on
+        elif hasattr(filter, 'command') and callable(filter.command):
+            filter = filter.command
+        elif hasattr(filter, 'on_command') and callable(filter.on_command):
+            filter = filter.on_command
+except Exception:
+    # leave as-is; plugin loader will emit useful error
+    pass
+
 # 插件元数据
 __name__ = "JMComicDownloader"
 __version__ = "1.2.0"
